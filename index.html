@@ -80,7 +80,7 @@ h1 {
 .subtitle {
   color:var(--text-dim);
   font-size:17px;
-  max-width:600px;
+  max-width:700px;
   margin:0 auto;
   position:relative;
   z-index:1;
@@ -159,81 +159,138 @@ h1 {
   background:var(--surface);
   border:1px solid var(--border);
   border-radius:20px;
-  padding:24px;
-  transition:all 0.3s ease;
+  padding:28px;
+  cursor:pointer;
+  transition:all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   position:relative;
   overflow:hidden;
 }
 .month-card::before {
   content:'';
   position:absolute;
-  top:0; left:0; right:0; height:3px;
+  top:0; left:0; width:100%; height:3px;
   background:linear-gradient(90deg, var(--renew), var(--accent));
   opacity:0;
   transition:opacity 0.3s;
 }
 .month-card:hover {
   border-color:var(--border-light);
-  transform:translateY(-4px);
+  transform:translateY(-3px);
   box-shadow:var(--shadow);
 }
 .month-card:hover::before { opacity:1; }
+.month-card.active {
+  border-color:var(--accent);
+  box-shadow:0 0 0 1px var(--accent), var(--shadow);
+}
+.month-card.active::before { opacity:1; }
 
 .month-header {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-bottom:16px;
-  padding-bottom:14px;
-  border-bottom:1px solid var(--border);
+  margin-bottom:4px;
 }
 .month-name {
-  font-size:20px;
+  font-size:22px;
   font-weight:800;
   letter-spacing:-0.02em;
 }
-.month-badge {
-  font-size:12px;
+.month-count {
+  font-size:13px;
   font-weight:700;
-  color:var(--renew);
-  background:var(--renew-bg);
-  padding:4px 12px;
+  padding:6px 14px;
   border-radius:100px;
+  background:var(--renew-bg);
+  color:var(--renew);
   border:1px solid rgba(16,185,129,0.2);
 }
-.month-badge.empty {
-  color:var(--text-dim);
+.month-count.empty {
   background:rgba(148,163,184,0.08);
+  color:var(--text-dim);
   border-color:rgba(148,163,184,0.15);
 }
 
-.peo-list { list-style:none; }
-.peo-item {
+.month-hint {
+  font-size:13px;
+  color:var(--text-dim);
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.month-hint .arrow {
+  transition:transform 0.3s;
+  font-size:14px;
+}
+.month-card.active .month-hint .arrow {
+  transform:rotate(180deg);
+}
+
+.month-panel {
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.5s ease, opacity 0.3s ease, margin 0.3s ease;
+  opacity:0;
+  margin-top:0;
+}
+.month-card.active .month-panel {
+  max-height:800px;
+  opacity:1;
+  margin-top:20px;
+}
+
+.month-peo-list {
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.month-peo-item {
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px 16px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:8px 0;
-  font-size:14px;
-  font-weight:500;
-  color:var(--text-dim);
-  border-bottom:1px solid rgba(255,255,255,0.03);
+  transition:all 0.2s;
 }
-.peo-item:last-child { border-bottom:none; }
-.peo-item .name { color:var(--text); font-weight:600; }
-.peo-item .detail {
-  font-size:11px;
+.month-peo-item:hover {
+  background:rgba(255,255,255,0.06);
+  transform:translateX(4px);
+}
+.month-peo-name {
+  font-size:15px;
+  font-weight:700;
+  color:var(--text);
+}
+.month-peo-detail {
+  text-align:right;
+}
+.month-peo-renew {
+  font-size:12px;
+  color:var(--renew);
   font-weight:600;
-  padding:2px 8px;
-  border-radius:6px;
-  background:rgba(0,0,0,0.25);
-  color:var(--text-dim);
+  margin-bottom:2px;
 }
-.empty-state {
+.month-peo-call {
+  font-size:12px;
+  color:var(--call);
+  font-weight:700;
+}
+.month-peo-call .label {
   color:var(--text-dim);
-  font-size:13px;
+  font-weight:500;
+}
+
+.empty-month {
+  color:var(--text-dim);
+  font-size:14px;
   font-style:italic;
-  padding:8px 0;
-  opacity:0.6;
+  padding:12px 0;
+  text-align:center;
 }
 
 /* PEO Cards */
@@ -521,9 +578,10 @@ footer {
 @media print {
   body { background:#fff; color:#000; }
   .month-card, .peo-card, .flow-node { background:#f8f9fa; border:1px solid #ddd; break-inside:avoid; }
-  .reveal-panel { max-height:none !important; opacity:1 !important; }
+  .month-panel, .reveal-panel { max-height:none !important; opacity:1 !important; margin-top:20px !important; }
 }
 </style>
+<base target="_blank">
 </head>
 <body>
 <div class="container">
@@ -531,141 +589,261 @@ footer {
 <header>
   <div class="badge">Sales Strategy Dashboard</div>
   <h1>PEO Renewal Planner</h1>
-  <p class="subtitle">Calendar shows when each PEO renews. Click any PEO card to reveal when to start calling them. Flow map shows your month-by-month action plan.</p>
+  <p class="subtitle">Click any month below to see which PEOs renew that month and the best time to call them. Click any PEO card to reveal its call window.</p>
 </header>
 
 <!-- Legend -->
 <div class="legend-bar">
   <div class="legend-item"><div class="legend-dot dot-renew"></div> Renewal Date</div>
-  <div class="legend-item"><div class="legend-dot dot-call"></div> Call Window (3–4 months before)</div>
+  <div class="legend-item"><div class="legend-dot dot-call"></div> Best Month to Call</div>
   <div class="legend-item"><div class="legend-dot dot-variable"></div> Variable / Ask Client</div>
 </div>
 
-<!-- CALENDAR: Renewal Dates Only -->
+<!-- CALENDAR: Click month to see PEOs + call timing -->
 <div class="section-title">
   <div class="section-icon icon-calendar">📅</div>
   <div>
     <h2>Renewal Calendar</h2>
-    <p>Which PEOs renew in each month</p>
+    <p>Click a month to see which PEOs renew and when to call them</p>
   </div>
 </div>
 
 <div class="calendar-grid">
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">January</div>
-      <div class="month-badge">3 Renewals</div>
+      <div class="month-count">3 Renewals</div>
     </div>
-    <ul class="peo-list">
-      <li class="peo-item"><span class="name">Engage</span><span class="detail">1/1</span></li>
-      <li class="peo-item"><span class="name">G&A</span><span class="detail">Aetna/Anthem</span></li>
-      <li class="peo-item"><span class="name">Paychex</span><span class="detail">Paychex direct</span></li>
-    </ul>
+    <div class="month-hint">Click to see PEOs & call timing <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <ul class="month-peo-list">
+        <li class="month-peo-item">
+          <span class="month-peo-name">Engage</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 1/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Sep – Oct</div>
+          </div>
+        </li>
+        <li class="month-peo-item">
+          <span class="month-peo-name">G&A — Aetna/Anthem</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 1/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Sep – Oct</div>
+          </div>
+        </li>
+        <li class="month-peo-item">
+          <span class="month-peo-name">Paychex — Direct</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 1/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Sep – Oct</div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">February</div>
-      <div class="month-badge empty">No renewals</div>
+      <div class="month-count empty">0 Renewals</div>
     </div>
-    <div class="empty-state">No fixed renewals this month</div>
+    <div class="month-hint">Click to expand <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <div class="empty-month">No fixed renewals this month</div>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">March</div>
-      <div class="month-badge empty">No renewals</div>
+      <div class="month-count empty">0 Renewals</div>
     </div>
-    <div class="empty-state">No fixed renewals this month</div>
+    <div class="month-hint">Click to expand <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <div class="empty-month">No fixed renewals this month</div>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">April</div>
-      <div class="month-badge empty">No renewals</div>
+      <div class="month-count empty">0 Renewals</div>
     </div>
-    <div class="empty-state">No fixed renewals this month</div>
+    <div class="month-hint">Click to expand <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <div class="empty-month">No fixed renewals this month</div>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">May</div>
-      <div class="month-badge empty">No renewals</div>
+      <div class="month-count empty">0 Renewals</div>
     </div>
-    <div class="empty-state">No fixed renewals this month</div>
+    <div class="month-hint">Click to expand <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <div class="empty-month">No fixed renewals this month</div>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">June</div>
-      <div class="month-badge">1 Renewal</div>
+      <div class="month-count">1 Renewal</div>
     </div>
-    <ul class="peo-list">
-      <li class="peo-item"><span class="name">ADP</span><span class="detail">6/1</span></li>
-    </ul>
+    <div class="month-hint">Click to see PEOs & call timing <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <ul class="month-peo-list">
+        <li class="month-peo-item">
+          <span class="month-peo-name">ADP</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 6/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Feb – Mar</div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">July</div>
-      <div class="month-badge">3 Renewals</div>
+      <div class="month-count">3 Renewals</div>
     </div>
-    <ul class="peo-list">
-      <li class="peo-item"><span class="name">Vensure</span><span class="detail">7/1</span></li>
-      <li class="peo-item"><span class="name">ARMHR</span><span class="detail">7/1</span></li>
-      <li class="peo-item"><span class="name">G&A</span><span class="detail">Cigna — 7/1</span></li>
-    </ul>
+    <div class="month-hint">Click to see PEOs & call timing <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <ul class="month-peo-list">
+        <li class="month-peo-item">
+          <span class="month-peo-name">Vensure</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 7/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Mar – Apr</div>
+          </div>
+        </li>
+        <li class="month-peo-item">
+          <span class="month-peo-name">ARMHR</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 7/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Mar – Apr</div>
+          </div>
+        </li>
+        <li class="month-peo-item">
+          <span class="month-peo-name">G&A — Cigna</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 7/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Mar – Apr</div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">August</div>
-      <div class="month-badge empty">No renewals</div>
+      <div class="month-count empty">0 Renewals</div>
     </div>
-    <div class="empty-state">No fixed renewals this month</div>
+    <div class="month-hint">Click to expand <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <div class="empty-month">No fixed renewals this month</div>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">September</div>
-      <div class="month-badge empty">No renewals</div>
+      <div class="month-count empty">0 Renewals</div>
     </div>
-    <div class="empty-state">No fixed renewals this month</div>
+    <div class="month-hint">Click to expand <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <div class="empty-month">No fixed renewals this month</div>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">October</div>
-      <div class="month-badge">3 Renewals</div>
+      <div class="month-count">3 Renewals</div>
     </div>
-    <ul class="peo-list">
-      <li class="peo-item"><span class="name">CoAdvantage</span><span class="detail">10/1</span></li>
-      <li class="peo-item"><span class="name">Paychex</span><span class="detail">Oasis — 10/1</span></li>
-      <li class="peo-item"><span class="name">Resourcing Edge</span><span class="detail">10/1</span></li>
-    </ul>
+    <div class="month-hint">Click to see PEOs & call timing <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <ul class="month-peo-list">
+        <li class="month-peo-item">
+          <span class="month-peo-name">CoAdvantage</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 10/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Jun – Jul</div>
+          </div>
+        </li>
+        <li class="month-peo-item">
+          <span class="month-peo-name">Paychex — Oasis</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 10/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Jun – Jul</div>
+          </div>
+        </li>
+        <li class="month-peo-item">
+          <span class="month-peo-name">Resourcing Edge</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 10/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Jun – Jul</div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">November</div>
-      <div class="month-badge">3 Renewals</div>
+      <div class="month-count">3 Renewals</div>
     </div>
-    <ul class="peo-list">
-      <li class="peo-item"><span class="name">Extensis</span><span class="detail">11/1</span></li>
-      <li class="peo-item"><span class="name">Prestige</span><span class="detail">11/1</span></li>
-      <li class="peo-item"><span class="name">Justworks</span><span class="detail">11/1</span></li>
-    </ul>
+    <div class="month-hint">Click to see PEOs & call timing <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <ul class="month-peo-list">
+        <li class="month-peo-item">
+          <span class="month-peo-name">Extensis</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 11/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Jul – Aug</div>
+          </div>
+        </li>
+        <li class="month-peo-item">
+          <span class="month-peo-name">Prestige</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 11/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Jul – Aug</div>
+          </div>
+        </li>
+        <li class="month-peo-item">
+          <span class="month-peo-name">Justworks</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 11/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Jul – Aug</div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 
-  <div class="month-card">
+  <div class="month-card" onclick="this.classList.toggle('active')">
     <div class="month-header">
       <div class="month-name">December</div>
-      <div class="month-badge">1 Renewal</div>
+      <div class="month-count">1 Renewal</div>
     </div>
-    <ul class="peo-list">
-      <li class="peo-item"><span class="name">Rippling</span><span class="detail">12/1</span></li>
-    </ul>
+    <div class="month-hint">Click to see PEOs & call timing <span class="arrow">▼</span></div>
+    <div class="month-panel">
+      <ul class="month-peo-list">
+        <li class="month-peo-item">
+          <span class="month-peo-name">Rippling</span>
+          <div class="month-peo-detail">
+            <div class="month-peo-renew">Renews 12/1</div>
+            <div class="month-peo-call"><span class="label">Call in:</span> Aug – Sep</div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 
 </div>
@@ -950,7 +1128,6 @@ footer {
 
 <div class="flow-container">
 
-  <!-- June 2026 -->
   <div class="flow-node active">
     <div class="flow-badge now">NOW — June 2026</div>
     <div class="flow-month">Call These PEOs</div>
@@ -980,7 +1157,6 @@ footer {
 
   <div class="flow-connector"></div>
 
-  <!-- July 2026 -->
   <div class="flow-node">
     <div class="flow-badge upcoming">July 2026</div>
     <div class="flow-month">Call These PEOs</div>
@@ -1022,7 +1198,6 @@ footer {
 
   <div class="flow-connector"></div>
 
-  <!-- August 2026 -->
   <div class="flow-node">
     <div class="flow-badge upcoming">August 2026</div>
     <div class="flow-month">Call These PEOs</div>
@@ -1052,12 +1227,11 @@ footer {
         <div class="flow-peo-meta">Variable — ask renewal date, call 3–4 months before</div>
       </div>
     </div>
-    <div class="flow-note">Note: CoAdvantage, Paychex (Oasis), and Resourcing Edge are now 2 months from renewal — outside the 3–4 month call window.</div>
+    <div class="flow-note">CoAdvantage, Paychex (Oasis), and Resourcing Edge are now 2 months from renewal — outside the 3–4 month call window.</div>
   </div>
 
   <div class="flow-connector"></div>
 
-  <!-- September 2026 -->
   <div class="flow-node">
     <div class="flow-badge upcoming">September 2026</div>
     <div class="flow-month">Call These PEOs</div>
@@ -1087,12 +1261,11 @@ footer {
         <div class="flow-peo-meta">Variable — ask renewal date, call 3–4 months before</div>
       </div>
     </div>
-    <div class="flow-note">Note: Extensis, Prestige, and Justworks are now 2 months from renewal — outside the 3–4 month call window.</div>
+    <div class="flow-note">Extensis, Prestige, and Justworks are now 2 months from renewal — outside the 3–4 month call window.</div>
   </div>
 
   <div class="flow-connector"></div>
 
-  <!-- October 2026 -->
   <div class="flow-node">
     <div class="flow-badge upcoming">October 2026</div>
     <div class="flow-month">Call These PEOs</div>
@@ -1118,12 +1291,11 @@ footer {
         <div class="flow-peo-meta">Variable — ask renewal date, call 3–4 months before</div>
       </div>
     </div>
-    <div class="flow-note">Note: Rippling is now 2 months from renewal — outside the 3–4 month call window.</div>
+    <div class="flow-note">Rippling is now 2 months from renewal — outside the 3–4 month call window.</div>
   </div>
 
   <div class="flow-connector"></div>
 
-  <!-- November 2026 -->
   <div class="flow-node quiet">
     <div class="flow-badge">November 2026</div>
     <div class="flow-month">No Fixed PEOs in Call Window</div>
@@ -1137,12 +1309,11 @@ footer {
         <div class="flow-peo-meta">Variable — ask renewal date, call 3–4 months before</div>
       </div>
     </div>
-    <div class="flow-note">Fixed-date PEOs renewing this month: Extensis, Prestige, Justworks (already past call window).</div>
+    <div class="flow-note">Fixed-date PEOs renewing this month: Extensis, Prestige, Justworks — already past call window.</div>
   </div>
 
   <div class="flow-connector"></div>
 
-  <!-- December 2026 -->
   <div class="flow-node quiet">
     <div class="flow-badge">December 2026</div>
     <div class="flow-month">No Fixed PEOs in Call Window</div>
@@ -1156,12 +1327,11 @@ footer {
         <div class="flow-peo-meta">Variable — ask renewal date, call 3–4 months before</div>
       </div>
     </div>
-    <div class="flow-note">Fixed-date PEO renewing this month: Rippling (already past call window).</div>
+    <div class="flow-note">Fixed-date PEO renewing this month: Rippling — already past call window.</div>
   </div>
 
   <div class="flow-connector"></div>
 
-  <!-- January 2027 -->
   <div class="flow-node quiet">
     <div class="flow-badge">January 2027</div>
     <div class="flow-month">No Fixed PEOs in Call Window</div>
@@ -1180,7 +1350,6 @@ footer {
 
   <div class="flow-connector"></div>
 
-  <!-- February 2027 -->
   <div class="flow-node">
     <div class="flow-badge upcoming">February 2027</div>
     <div class="flow-month">Call These PEOs</div>
@@ -1202,7 +1371,6 @@ footer {
 
   <div class="flow-connector"></div>
 
-  <!-- March 2027 -->
   <div class="flow-node">
     <div class="flow-badge upcoming">March 2027</div>
     <div class="flow-month">Call These PEOs</div>
@@ -1236,7 +1404,6 @@ footer {
 
   <div class="flow-connector"></div>
 
-  <!-- April 2027 -->
   <div class="flow-node">
     <div class="flow-badge upcoming">April 2027</div>
     <div class="flow-month">Call These PEOs</div>
@@ -1262,13 +1429,13 @@ footer {
         <div class="flow-peo-meta">Variable — ask renewal date, call 3–4 months before</div>
       </div>
     </div>
-    <div class="flow-note">Note: ADP is now 2 months from renewal — outside the 3–4 month call window.</div>
+    <div class="flow-note">ADP is now 2 months from renewal — outside the 3–4 month call window.</div>
   </div>
 
 </div>
 
 <footer>
-  PEO Renewal Strategy Dashboard • Click any card to reveal call timing • Works offline
+  PEO Renewal Strategy Dashboard • Click any month or PEO card to reveal details • Works offline
 </footer>
 
 </div>
